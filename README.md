@@ -1,4 +1,4 @@
-## Introduction <img src = "https://mehdiretif.github.io/armvar/images/amrvar_logo.png" align = "right" width = "200">
+## Introduction <img src = "./images/amrvar_logo.png" align = "right" width = "200">
 
 `ArmVar` is an R package to detect cancer cells from single cell RNA sequencing (scRNA-seq) data. 
 
