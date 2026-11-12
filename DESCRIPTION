@@ -1,0 +1,27 @@
+Package: armvar
+Title: ArmVar: a reference-free approach to identify cancer cells from single-cell RNA-seq data
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Mehdi", family = "Marchand", email = "mehdi.retif@gmail.com", role = c("aut", "cre"))
+Description: ArmVar identify cancer ceells based on a mean comparison test at the chromosomal arm-level expression in combination with a smoothing strategy.
+License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
+    license
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 8.0.0
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+Imports: 
+    circlize,
+    ComplexHeatmap,
+    grid,
+    Matrix,
+    mcprogress,
+    paletteer,
+    Seurat,
+    stats
+Depends: 
+    R (>= 3.5)
+LazyData: true
