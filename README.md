@@ -23,9 +23,11 @@ data("gao_2021_breast_cancer_data")
 ```
 
 Then, ArmVar can be executed with:
-
 ```
 armvar_res <- armvar(data = gao_2021_breast_cancer_data, k = 300, n_pcs = 50, n.cores = 3, heatmap = FALSE)
 ```
 
+The results of ArmVar can be visualized using the standard `Seurat` plotting functions (`DimPlot`, `FeaturePlot`).
+
+<img src = "./images/fig1.png">
 
