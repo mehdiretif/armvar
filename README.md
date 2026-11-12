@@ -12,7 +12,7 @@ remotes::install_github("mehdiretif/armvar")
 
 ## Usage
 
-### Detect cancer cells
+### Cancer cell identification
 
 ArmVar can be used on a Seurat object. A thyroid cancer dataset from [Gao et al. (Nat Biotechnol, 2021)](https://www.nature.com/articles/s41587-020-00795-2#citeas) is available as an example data. It can be loaded with:
 
@@ -38,7 +38,7 @@ ComplexHeatmap::draw(hm_object$heatmap, annotation_legend_list=hm_object$legend)
 ```
 <img src = "./images/fig2.png">
 
-### Simulate cancer tissues
+### Cancer tissue simulation
 
 The method also proposes a pipeline to simulate cancer cells from healthy cells by inducing CNAs. **We highly recommend to use healthy counterparts of the malignant cells for the simulation.**
 
