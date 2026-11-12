@@ -40,20 +40,28 @@ head(armvar_res$data@meta.data[, c('published_annotation', 'welch_anova', 'ArmVa
 ```
 
 ```{r}
-barplot1 <- ggplot(data = armvar_res$data@meta.data, aes(x=welch_anova, fill=published_annotation)) +
-  scale_fill_manual(values = paletteer::paletteer_d("ggthemes::Tableau_10")) +
-  theme(legend.position="none") +
-  geom_bar()
+armvar_res$data <- Seurat::RunUMAP(armvar_res$data, dims = 1:50)
 
-barplot2 <- ggplot(data = armvar_res$data@meta.data, aes(x=ArmVar_k300_pc50, fill = published_annotation)) +
-  scale_fill_manual(values = paletteer::paletteer_d("ggthemes::Tableau_10")) +
-  theme(axis.title.y=element_blank(), axis.text.y=element_blank()) +
-  geom_bar()
+colors <- armvar::color_selection(armvar_res$data, heatmap_var = c("published_annotation"))
 
-legend <- get_legend(barplot2)
-barplot2 <- barplot2 + theme(legend.position="none")
+umap1 <- Seurat::DimPlot(armvar_res$data, reduction = "umap", group.by = 'published_annotation') +
+  labs(x = "UMAP-1", y = "UMAP-2", title = "Cell type (published annotation)") +
+  theme(axis.text = element_blank(), axis.ticks = element_blank(), 
+        legend.position = "bottom", legend.justification = 'center', legend.title = element_blank()) +
+  scale_color_manual(values = colors$`Published annotation`)
 
-plot_grid(barplot1, barplot2, legend, ncol = 3, align='h', rel_widths = c(3,3,2))
+umap2 <- Seurat::DimPlot(armvar_res$data, reduction = "umap", group.by = 'ArmVar_k300_pc50') +
+  labs(x = "UMAP-1", y = "UMAP-2", title = "ArmVar") +
+  scale_color_manual(values = c('cancer' = "#FE5F55", "normal" = "#577399")) +
+  theme(axis.text = element_blank(), axis.ticks = element_blank(), 
+      legend.position = "bottom", legend.direction="horizontal", legend.justification = 'center', legend.title = element_blank()) 
+
+umap3 <- Seurat::FeaturePlot(armvar_res$data, reduction = "umap", features = "smoothed_fstat_k300_pc50") +
+  labs(x = "UMAP-1", y = "UMAP-2", title = "Smoothed F-stat") +
+  theme(axis.text = element_blank(), axis.ticks = element_blank(), 
+    legend.position = "right", legend.justification = 'center', legend.title = element_blank())
+
+plot_grid(umap1, umap2, umap3, nrow=1, align = 'h')#, axis = 'tblr')
 ```
 
 # if heatmap variable(s) is/are specified, armvar generates an heatmap that can be visualized with this code:
