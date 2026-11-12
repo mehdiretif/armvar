@@ -2,22 +2,22 @@
 % Please edit documentation in R/generate_heatmap.R
 \name{color_selection}
 \alias{color_selection}
-\title{Select a ggtheme palette among 'Winter', 'Tableau_10', 'Tableau_20', 'Superfishel_Stone', 'Miller_Stone', 'manyeys', 'Hue_Circle', 'Classic_10_Medium', 'gdoc' to visualize the specified variable}
+\title{Select a ggtheme palette among 'Winter', 'Tableau_10', 'Tableau_20', 'Superfishel_Stone', 'Miller_Stone', 'manyeys', 'Hue_Circle', 'Classic_10_Medium', 'gdoc' to visualize the specified column(s).}
 \usage{
 color_selection(data, heatmap_var)
 }
 \arguments{
-\item{data}{the Seurat object}
+\item{data}{The Seurat object}
 
-\item{heatmap_var}{the variable to visualize in the heatmap legend}
+\item{heatmap_var}{The column(s) to visualize in the heatmap legend.}
 }
 \value{
-colors for the values of heatmap_var
+A list with color vectors for the specified columns.
 }
 \description{
-Select a ggtheme palette among 'Winter', 'Tableau_10', 'Tableau_20', 'Superfishel_Stone', 'Miller_Stone', 'manyeys', 'Hue_Circle', 'Classic_10_Medium', 'gdoc' to visualize the specified variable
+Select a ggtheme palette among 'Winter', 'Tableau_10', 'Tableau_20', 'Superfishel_Stone', 'Miller_Stone', 'manyeys', 'Hue_Circle', 'Classic_10_Medium', 'gdoc' to visualize the specified column(s).
 }
 \examples{
 data("gao_2021_breast_cancer_data", package = "armvar")
-color_selection(data, 'published_annotation')
+color_res <- color_selection(data, 'published_annotation')
 }

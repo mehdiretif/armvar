@@ -2,21 +2,23 @@
 % Please edit documentation in R/generate_metadata.R
 \name{generate_geneMetadata}
 \alias{generate_geneMetadata}
-\title{Identify the chromosomal location of every gene present in the data}
+\title{Determine the position of genes in chromosome arms.}
 \usage{
 generate_geneMetadata(data, organism = "human")
 }
 \arguments{
-\item{data}{the Seurat object containing the normalized and scaled matrix in the 'SCT' assay}
+\item{data}{The Seurat object containing the normalized and scaled expression matrix in the 'SCT' assay.}
+
+\item{organism}{The organism from which the data come from (human by default)>}
 }
 \value{
-the annotated normalized and scaled matrix
+The annotated normalized and scaled matrix.
 }
 \description{
-Identify the chromosomal location of every gene present in the data
+Determine the position of genes in chromosome arms.
 }
 \examples{
 data("gao_2021_breast_cancer_data", package = "armvar")
 data <- armvar_processing(data = gao_2021_breast_cancer_data)
-generate_geneMetadata(data)
+geneMetadata <- generate_geneMetadata(data)
 }

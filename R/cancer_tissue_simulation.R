@@ -118,12 +118,12 @@ collect_healthy_to_transform <- function(healthy_metadata, cancer_cell_nb, sampl
 
     if(length(ctrl_cells) < remaining_cells_to_select){ # if less ctrl cells than required have been collected
       selected_cells <- ctrl_cells
-      selected_cells <- setNames(selected_cells, rep(selected_ctrl_sample, length(ctrl_cells)))
+      selected_cells <- stats::setNames(selected_cells, rep(selected_ctrl_sample, length(ctrl_cells)))
     }
     if(length(ctrl_cells) > remaining_cells_to_select){ # if more ctrl cells than required have been collected
       set.seed(seed)
       selected_cells <- sample(ctrl_cells, remaining_cells_to_select, replace = FALSE)
-      selected_cells <- setNames(selected_cells, rep(selected_ctrl_sample, remaining_cells_to_select))
+      selected_cells <- stats::setNames(selected_cells, rep(selected_ctrl_sample, remaining_cells_to_select))
     }
     collected_healthy_cells <- c(collected_healthy_cells, selected_cells)
   }
@@ -140,7 +140,7 @@ collect_healthy_to_transform <- function(healthy_metadata, cancer_cell_nb, sampl
 #'
 seurat_obj_construction <- function(data, simulated_count_mtx){
 
-  simulated_seurat_obj <- CreateSeuratObject(as.matrix(simulated_count_mtx), assay = 'RNA')
+  simulated_seurat_obj <- Seurat::CreateSeuratObject(as.matrix(simulated_count_mtx), assay = 'RNA')
   simulated_seurat_obj@meta.data$published_annotation <- ifelse(simulated_seurat_obj@meta.data$orig.ident == 'SIMULATED', 'cancer (simulated)', data@meta.data[sub("^[^_]*_", "", row.names(simulated_seurat_obj@meta.data)), 'published_annotation'])
 
   simulated_seurat_obj@meta.data$tumor_sample_origin <- ifelse(simulated_seurat_obj@meta.data$orig.ident == "SIMULATED", sapply(strsplit(rownames(simulated_seurat_obj@meta.data), "_"), `[`, 4), "healthy cells")

@@ -2,7 +2,7 @@
 title: "How to use ArmVar"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{comment-utiliser-mon-package}
+  %\VignetteIndexEntry{How to use ArmVar}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -34,7 +34,8 @@ data("gao_2021_breast_cancer_data")
 ```{r} 
 armvar_res <- armvar(data = gao_2021_breast_cancer_data, k = 300, n_pcs = 50, n.cores = 3, heatmap = TRUE, heatmap_var = c('sample', 'published_annotation'))
 ```
-# The classification results are returned in the data@meta.data, where we can find the classification without smoothing (welch_anova), the final classification of ArmVar (ArmVar_k300_pc50) and the smoothed F-statistic (smoothed_fstat_k300_pc50).  
+# The classification results are returned in the data@meta.data, where we can find the classification without smoothing (welch_anova), the final classification of ArmVar (ArmVar_k300_pc50) and the smoothed F-statistic (smoothed_fstat_k300_pc50). 
+
 ```{r}
 head(armvar_res$data@meta.data[, c('published_annotation', 'welch_anova', 'ArmVar_k300_pc50', 'smoothed_fstat_k300_pc50')])
 ```
@@ -61,7 +62,7 @@ umap3 <- Seurat::FeaturePlot(armvar_res$data, reduction = "umap", features = "sm
   theme(axis.text = element_blank(), axis.ticks = element_blank(), 
     legend.position = "right", legend.justification = 'center', legend.title = element_blank())
 
-plot_grid(umap1, umap2, umap3, nrow=1, align = 'h')#, axis = 'tblr')
+plot_grid(umap1, umap2, umap3, nrow=1, align = 'h')
 ```
 
 # if heatmap variable(s) is/are specified, armvar generates an heatmap that can be visualized with this code:
@@ -135,14 +136,12 @@ ggplot(data=shared_patterns, aes(x=cell_nb, y=total)) +
 tumor_microenvrnt_cells <- row.names(peng_2019_pdac_data@meta.data[peng_2019_pdac_data@meta.data$tissue == "pt" & peng_2019_pdac_data@meta.data$published_annotation != 'Ductal cell type 2',])
 
 simulated_seurat_obj <- cancer_tissue_simulation(data = peng_2019_pdac_data, sample_nb_to_simulate=23, cancer_cell_nb_to_simulate=320, total_cell_in_sample=400, healthy_cells_to_transform=healthy_cells, tumor_microenvrnt_cells=tumor_microenvrnt_cells, sample_fc_list= foldchange_computation_res$sample_fc_list,  sample_col='orig.ident', seed=1)
+
+simulated_armvar_res <- armvar(data = simulated_seurat_obj, k = 300, n_pcs = 50, n.cores = 3, heatmap = TRUE, heatmap_var = c('sample', 'published_annotation'))
 ```
 
 ```{r}
-simulated_seurat_obj <- Seurat::NormalizeData(simulated_seurat_obj)
-simulated_seurat_obj <- Seurat::FindVariableFeatures(simulated_seurat_obj, selection.method = "vst", nfeatures = 3000)
-simulated_seurat_obj <- Seurat::ScaleData(simulated_seurat_obj, features = rownames(simulated_seurat_obj), do.scale = TRUE, do.center = TRUE,) # = z scoring
-simulated_seurat_obj <- Seurat::RunPCA(simulated_seurat_obj, verbose = FALSE)
-simulated_seurat_obj <- Seurat::RunUMAP(simulated_seurat_obj, dims = 1:50)
+simulated_seurat_obj <- Seurat::RunUMAP(simulated_armvar_res$data, dims = 1:50)
 
 colors <- armvar::color_selection(simulated_seurat_obj, heatmap_var = c("group_origin", "published_annotation"))
 
@@ -153,11 +152,11 @@ umap1 <- Seurat::DimPlot(simulated_seurat_obj, reduction = "umap", group.by = 'p
   scale_color_manual(values = colors$`Published annotation`) +
   guides(color = guide_legend(override.aes = list(size=5), nrow=ceiling(length(colors$`Published annotation`)/2)))
 
-umap2 <- Seurat::DimPlot(simulated_seurat_obj, reduction = "umap", group.by = 'sample') +
+umap2 <- Seurat::DimPlot(simulated_seurat_obj, reduction = "umap", group.by = 'ArmVar_k300_pc50') +
   theme(axis.text = element_blank(), axis.ticks = element_blank(), panel.border = element_rect(color = "black", fill = NA, linewidth = 0.8)) +
-  labs(x = "UMAP-1", y = "UMAP-2", color = "Sample", title="Simulated sample") +
+  labs(x = "UMAP-1", y = "UMAP-2", color = "ArmVar", title="Simulated sample") +
   theme(legend.position = "bottom", legend.justification = 'center', legend.title = element_blank()) +
-  guides(color = guide_legend(override.aes = list(size=5), nrow=ceiling(length(unique(simulated_seurat_obj@meta.data$sample))/4)))
+  guides(color = guide_legend(override.aes = list(size=5), nrow=ceiling(length(unique(simulated_seurat_obj@meta.data$))/4)))
 
 umap3 <- Seurat::DimPlot(simulated_seurat_obj, reduction = "umap", group.by = 'tumor_sample_origin') +
   theme(axis.text = element_blank(), axis.ticks = element_blank(), panel.border = element_rect(color = "black", fill = NA, linewidth = 0.8)) +

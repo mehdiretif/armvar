@@ -1,6 +1,7 @@
 #' Determine the position of genes in chromosome arms.
 #'
 #' @param data The Seurat object containing the normalized and scaled expression matrix in the 'SCT' assay.
+#' @param organism The organism from which the data come from (human by default)>
 #'
 #' @returns The annotated normalized and scaled matrix.
 #' @export

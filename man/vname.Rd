@@ -2,18 +2,18 @@
 % Please edit documentation in R/generate_heatmap.R
 \name{vname}
 \alias{vname}
-\title{Rename the variable for the heatmap legend}
+\title{Rename the variable for the heatmap legend.}
 \usage{
 vname(name)
 }
 \arguments{
-\item{name}{the raw name}
+\item{name}{The raw name.}
 }
 \value{
-the modified name
+The modified name.
 }
 \description{
-Rename the variable for the heatmap legend
+Rename the variable for the heatmap legend.
 }
 \examples{
 vname('ArmVar_k300_pc50')

@@ -2,30 +2,30 @@
 % Please edit documentation in R/smoothing.R
 \name{armvar_smoothing}
 \alias{armvar_smoothing}
-\title{Smoothing of the Welch's ANOVA classification using based on the nearest neighbor annotations}
+\title{Smoothing of the Welch's ANOVA classification using nearest neighbors.}
 \usage{
 armvar_smoothing(data, k, n_pcs, n.cores)
 }
 \arguments{
-\item{data}{the Seurat object containing the scaled matrix}
+\item{data}{The Seurat object containing the scaled matrix.}
 
-\item{k}{the number of nearest neighbors}
+\item{k}{The number of nearest neighbors.}
 
-\item{n_pcs}{the number of principal components}
+\item{n_pcs}{The number of principal components.}
 
-\item{n.cores}{the number of cores}
+\item{n.cores}{The number of cores.}
 }
 \value{
-the data with the ArmVar classification and smoothed F-stat (in the meta.data table)
+The Seurat object with the ArmVar final classification and smoothed F-stat (in the meta.data).
 }
 \description{
-Smoothing of the Welch's ANOVA classification using based on the nearest neighbor annotations
+Smoothing of the Welch's ANOVA classification using nearest neighbors.
 }
 \examples{
 data("gao_2021_breast_cancer_data", package = "armvar")
 data <- armvar_processing(data = gao_2021_breast_cancer_data)
 geneMetadata <- generate_geneMetadata(data)
 data <- stat_test(data, geneMetadata, n.cores = 1)
-armvar_smoothing(data, k = c(200, 300), n_pcs = 50, n.cores = 1)
+armvar_res <- armvar_smoothing(data, k = c(200, 300), n_pcs = 50, n.cores = 1)
 
 }

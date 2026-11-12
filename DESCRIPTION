@@ -3,7 +3,7 @@ Title: ArmVar: a reference-free approach to identify cancer cells from single-ce
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "Mehdi", family = "Marchand", email = "mehdi.retif@gmail.com", role = c("aut", "cre"))
-Description: ArmVar identify cancer ceells based on a mean comparison test at the chromosomal arm-level expression in combination with a smoothing strategy.
+Description: ArmVar identify cancer cells based on a mean comparison test at the chromosomal arm-level using relative expression in combination with a smoothing strategy.
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
     license
 Encoding: UTF-8

@@ -7,12 +7,12 @@
 run_welch_anova(cell, geneMetadata)
 }
 \arguments{
-\item{cell}{the name of the cell of interest}
+\item{cell}{The name of the cell of interest.}
 
-\item{geneMetadata}{the annotated normalized and scaled matrix}
+\item{geneMetadata}{The annotated normalized and scaled expression matrix.}
 }
 \value{
-the metrics of the Welch's ANOVA comparison test
+The metrics of the Welch's ANOVA comparison test.
 }
 \description{
 Welch's ANOVA mean comparison test for a given cell
@@ -21,5 +21,5 @@ Welch's ANOVA mean comparison test for a given cell
 data("gao_2021_breast_cancer_data", package = "armvar")
 data <- armvar_processing(data = gao_2021_breast_cancer_data)
 geneMetadata <- generate_geneMetadata(data)
-run_welch_anova(cell = "AAACCTGCACCTTGTC_b" , geneMetadata)
+welch_anova_res <- run_welch_anova(cell = "AAACCTGCACCTTGTC_b" , geneMetadata)
 }

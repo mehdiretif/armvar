@@ -2,22 +2,22 @@
 % Please edit documentation in R/mean_comparison_test.R
 \name{stat_test}
 \alias{stat_test}
-\title{Testing the presence of mean differences between chromosome arms for the cells within geneMetadata}
+\title{Testing the presence of mean differences between chromosome arms for every cell}
 \usage{
 stat_test(data, geneMetadata, n.cores = 3)
 }
 \arguments{
-\item{data}{the Seurat object}
+\item{data}{The Seurat object.}
 
-\item{geneMetadata}{the annotated normalized and scaled matrix}
+\item{geneMetadata}{The annotated normalized and scaled expression matrix.}
 
-\item{n.cores}{the number of cores used for the mean comparison test parallelization (one test per cell)}
+\item{n.cores}{The number of cores.}
 }
 \value{
-the Seurat with the metrics of the mean comparison test for all the tested cells
+The Seurat object with the metrics of the Welch's ANOVA mean comparison test for all the tested cells.
 }
 \description{
-Testing the presence of mean differences between chromosome arms for the cells within geneMetadata
+Testing the presence of mean differences between chromosome arms for every cell
 }
 \examples{
 data("gao_2021_breast_cancer_data", package = "armvar")

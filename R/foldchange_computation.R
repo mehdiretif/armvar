@@ -135,7 +135,7 @@ cell_foldchange_computation <- function(data, healthy_cells, cancer_cells, sampl
       fc_list <- (cnv_mean + 1e-9)/ (ref_mean + 1e-9)
 
       list(
-        median = median(fc_list),
+        median = stats::median(fc_list),
         log2 = log2(fc_list),
         values = fc_list
       )

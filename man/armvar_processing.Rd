@@ -7,10 +7,10 @@
 armvar_processing(data)
 }
 \arguments{
-\item{data}{a Seurat object}
+\item{data}{A Seurat object.}
 }
 \value{
-the Seurat object with the normalized and scaled expression matrix in the SCT assay
+The Seurat object with the normalized and scaled expression matrix in the SCT assay.
 }
 \description{
 Processing
