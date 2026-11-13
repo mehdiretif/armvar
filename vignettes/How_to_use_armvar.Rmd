@@ -20,21 +20,28 @@ library(ggplot2)
 library(cowplot)
 ```
 
+# Samples from the Peng 2019 PDAC dataset
+
+```{r, eval=FALSE}
+data <- readRDS('~/Project/datashare/rds/00_peng_k_2019.rds')
+samples <- unique(data@meta.data$orig.ident)
+set.seed(1)
+selected_samples <- sample(samples, length(samples)/3, replace = FALSE)
+cells_from_selected_samples <- row.names(data@meta.data[data@meta.data$orig.ident %in% selected_samples,])
+peng_2019_PDAC_sample <- subset(data, cells = cells_from_selected_samples)
+usethis::use_data(peng_2019_PDAC_sample, overwrite = TRUE)
+```
+
 ### Detection of cancer cells
 
-# As an example, a thyroid cancer dataset from Gao et al. 2021 is loaded.
-```{r}
-#data <- readRDS('~/Project/datashare/rds/00_gao_2021.rds')
-#cells_to_keep <- row.names(data@meta.data[data@meta.data$sample %in% c('TNBC1', 'TNBC2', 'TNBC3', 'TNBC4', 'TNBC5'),])
-#gao_2021_breast_cancer_data <- subset(data, cells=cells_to_keep)
-#usethis::use_data(gao_2021_breast_cancer_data, overwrite = TRUE)
-data("gao_2021_breast_cancer_data")
-```
+# ArmVar can be executed on samples from the Peng et al. 2019 dataset that can be loaded with:
 
 ```{r} 
-armvar_res <- armvar(data = gao_2021_breast_cancer_data, k = 300, n_pcs = 50, n.cores = 3, heatmap = TRUE, heatmap_var = c('sample', 'published_annotation'))
+data("peng_2019_PDAC_sample")
+armvar_res <- armvar(data = peng_2019_PDAC_sample, k = 300, n_pcs = 50, n.cores = 3, heatmap = TRUE, heatmap_var = c('sample', 'published_annotation'))
 ```
-# The classification results are returned in the data@meta.data, where we can find the classification without smoothing (welch_anova), the final classification of ArmVar (ArmVar_k300_pc50) and the smoothed F-statistic (smoothed_fstat_k300_pc50). 
+
+# The classification results are returned in the data@meta.data, where we can find the classification without smoothing (welch_anova), the final ArmVar classification (ArmVar_k300_pc50) and the smoothed F-statistic (smoothed_fstat_k300_pc50). 
 
 ```{r}
 head(armvar_res$data@meta.data[, c('published_annotation', 'welch_anova', 'ArmVar_k300_pc50', 'smoothed_fstat_k300_pc50')])
@@ -49,7 +56,8 @@ umap1 <- Seurat::DimPlot(armvar_res$data, reduction = "umap", group.by = 'publis
   labs(x = "UMAP-1", y = "UMAP-2", title = "Cell type (published annotation)") +
   theme(axis.text = element_blank(), axis.ticks = element_blank(), 
         legend.position = "bottom", legend.justification = 'center', legend.title = element_blank()) +
-  scale_color_manual(values = colors$`Published annotation`)
+  scale_color_manual(values = colors$`Published annotation`) +
+  guides(color = guide_legend(override.aes = list(size=3), nrow=3))
 
 umap2 <- Seurat::DimPlot(armvar_res$data, reduction = "umap", group.by = 'ArmVar_k300_pc50') +
   labs(x = "UMAP-1", y = "UMAP-2", title = "ArmVar") +
@@ -65,51 +73,33 @@ umap3 <- Seurat::FeaturePlot(armvar_res$data, reduction = "umap", features = "sm
 plot_grid(umap1, umap2, umap3, nrow=1, align = 'h')
 ```
 
-# if heatmap variable(s) is/are specified, armvar generates an heatmap that can be visualized with this code:
-```{r}
-ComplexHeatmap::draw(armvar_res$heatmap_obj$heatmap, annotation_legend_list=armvar_res$heatmap_obj$legend)
-```
+# If heatmap variable(s) is/are specified, the armvar function generates an heatmap.
+Note: if no heatmap variable has been specified, the heatmap can be generated with the generate_heatmap function using the data and the metadata of the armvar output.
 
-# if no heatmap variable was specified, the heatmap can be generated with the data and the metadata of the armvar output:
 ```{r}
-hm_object <- generate_heatmap(armvar_res$data, geneMetadata = armvar_res$geneMetadata, heatmap_var <-  c('sample', 'published_annotation'))
-
 ComplexHeatmap::draw(armvar_res$heatmap_obj$heatmap, annotation_legend_list=armvar_res$heatmap_obj$legend)
 ```
 
 ### Simulation of tumor tissue
 
-# We propose to use a PDAC dataset from Peng et al. 2019 because the healthy counterparts of the malignat cells have been identified (Ductal type 1). We recommend to use this kind of cells to simulate cancer cells.
-```{r}
-# peng_2019_pdac_data <- readRDS('~/Project/datashare/rds/00_peng_k_2019.rds')
-# usethis::use_data(peng_2019_pdac_data, overwrite = TRUE)
-# rm(peng_2019_pdac_data)
-# data("peng_2019_pdac_data")
-
-table(peng_2019_pdac_data@meta.data[peng_2019_pdac_data@meta.data$published_annotation == 'Ductal cell type 2', 'orig.ident'])
-```
+# We also proposes a pipeline to simulate cancer cells from healthy cells by inducing CNAs.
+# As a first step, foldchanges between cancer and healthy cells for genes located in chromosome arms with CNAs (according to fastCNV) are computed.
 
 ```{r}
-# here we remove the sample T12 since it contains a low number of cancer cells and fastCNV seems to require more cells
-cells_to_keep <- row.names(peng_2019_pdac_data@meta.data[peng_2019_pdac_data@meta.data$orig.ident != 'T12',])
-peng_2019_pdac_data <- subset(peng_2019_pdac_data, cells = cells_to_keep)
+healthy_cells <- row.names(peng_2019_PDAC_sample@meta.data[peng_2019_PDAC_sample@meta.data$published_annotation == 'Ductal cell type 1' & peng_2019_PDAC_sample@meta.data$tissue == 'h',])
+cancer_cells <- row.names(peng_2019_PDAC_sample@meta.data[peng_2019_PDAC_sample@meta.data$published_annotation == 'Ductal cell type 2',])
 
-# healthy cells from healthy tissu ('h') are selected to avoid selecting missannotated cancer cells
-healthy_cells <- row.names(peng_2019_pdac_data@meta.data[peng_2019_pdac_data@meta.data$published_annotation == 'Ductal cell type 1' & peng_2019_pdac_data@meta.data$tissue == 'h',])
-cancer_cells <- row.names(peng_2019_pdac_data@meta.data[peng_2019_pdac_data@meta.data$published_annotation == 'Ductal cell type 2',])
-
-foldchange_computation_res <- foldchange_computation(peng_2019_pdac_data, healthy_cells, cancer_cells, sample_col='orig.ident', topNGenes=15000)
+foldchange_computation_res <- foldchange_computation(peng_2019_PDAC_sample, healthy_cells, cancer_cells, sample_col='orig.ident', topNGenes=15000)
 ```
-# foldchange_computation returns the metadata of fastCNV that can be visualized to ensure the proper functionning of the tool
-# The cnv_fraction represents the amount of CNAs in the cells (more precisely the proportion of windows with CNAs according to fastCNV)
-# Here the ductal cell type 2 (malignant cells) and the ductal cell type 1 (healthy counterparts) are well separated
+
+# The foldchange_computation function returns the metadata of fastCNV that can be visualized to ensure the proper functionning of the method. The cnv_fraction represents the amount of CNAs in the cells (more precisely the proportion of windows/chromosome arms with CNAs according to fastCNV). Here the ductal cell type 2 (malignant cells) and the ductal cell type 1 (healthy counterparts) are well separated as expected.
 
 ```{r}
 ggplot(foldchange_computation_res$fastCNV_metadata, aes(x = cnv_fraction, fill = published_annotation)) +
   geom_histogram(binwidth = 0.025, position = "identity", alpha = 0.5)
 ```
-# The function also returns a list of patterns of CNAs identified in the tumor cells. 
-# Here we can see that most of the cells present unique patterns of CNAs although there are some patterns shared between 2 up 8 cells. 
+
+# The function also returns a list of patterns of CNAs identified in the tumor cells. Here we can see that most of the cells are associated with unique patterns of CNAs although there are some patterns shared between 2 up to 8 cells. 
 
 ```{r}
 patterns <- foldchange_computation_res$pattern_list
@@ -131,11 +121,13 @@ ggplot(data=shared_patterns, aes(x=cell_nb, y=total)) +
   labs(x = 'number of cells', y = 'nb of patterns', title = 'Number of patterns shared by cells')
 ```
 
+# Finally we can induce CNAs in healthy cells (randomly selected) by multiplying the raw counts with the fold changes. 
+
 ```{r}
 # Here we take cells from tumor tissues that are not tumor cells
-tumor_microenvrnt_cells <- row.names(peng_2019_pdac_data@meta.data[peng_2019_pdac_data@meta.data$tissue == "pt" & peng_2019_pdac_data@meta.data$published_annotation != 'Ductal cell type 2',])
+tumor_microenvrnt_cells <- row.names(peng_2019_PDAC_sample@meta.data[peng_2019_PDAC_sample@meta.data$tissue == "pt" & peng_2019_PDAC_sample@meta.data$published_annotation != 'Ductal cell type 2',])
 
-simulated_seurat_obj <- cancer_tissue_simulation(data = peng_2019_pdac_data, sample_nb_to_simulate=23, cancer_cell_nb_to_simulate=320, total_cell_in_sample=400, healthy_cells_to_transform=healthy_cells, tumor_microenvrnt_cells=tumor_microenvrnt_cells, sample_fc_list= foldchange_computation_res$sample_fc_list,  sample_col='orig.ident', seed=1)
+simulated_seurat_obj <- cancer_tissue_simulation(data = peng_2019_PDAC_sample, sample_nb_to_simulate=8, cancer_cell_nb_to_simulate=320, total_cell_in_sample=400, healthy_cells_to_transform=healthy_cells, tumor_microenvrnt_cells=tumor_microenvrnt_cells, sample_fc_list= foldchange_computation_res$sample_fc_list,  sample_col='orig.ident', seed=1)
 
 simulated_armvar_res <- armvar(data = simulated_seurat_obj, k = 300, n_pcs = 50, n.cores = 3, heatmap = TRUE, heatmap_var = c('sample', 'published_annotation'))
 ```
@@ -143,34 +135,34 @@ simulated_armvar_res <- armvar(data = simulated_seurat_obj, k = 300, n_pcs = 50,
 ```{r}
 simulated_seurat_obj <- Seurat::RunUMAP(simulated_armvar_res$data, dims = 1:50)
 
-colors <- armvar::color_selection(simulated_seurat_obj, heatmap_var = c("group_origin", "published_annotation"))
+colors <- armvar::color_selection(simulated_seurat_obj, heatmap_var = c("published_annotation", "group_origin", "tumor_sample_origin"))
+
+colors$`Group origin`[['healthy cells']] <- 'grey'
+colors$`Tumor sample origin`[['healthy cells']] <- 'grey'
 
 umap1 <- Seurat::DimPlot(simulated_seurat_obj, reduction = "umap", group.by = 'published_annotation') +
-  theme(axis.text = element_blank(), axis.ticks = element_blank(), panel.border = element_rect(color = "black", fill = NA, linewidth = 0.8)) +
   labs(x = "UMAP-1", y = "UMAP-2", color = "Published annotation", title="Cell type") +
   theme(legend.position = "bottom", legend.justification = 'center', legend.title = element_blank()) +
   scale_color_manual(values = colors$`Published annotation`) +
   guides(color = guide_legend(override.aes = list(size=5), nrow=ceiling(length(colors$`Published annotation`)/2)))
 
 umap2 <- Seurat::DimPlot(simulated_seurat_obj, reduction = "umap", group.by = 'ArmVar_k300_pc50') +
-  theme(axis.text = element_blank(), axis.ticks = element_blank(), panel.border = element_rect(color = "black", fill = NA, linewidth = 0.8)) +
-  labs(x = "UMAP-1", y = "UMAP-2", color = "ArmVar", title="Simulated sample") +
-  theme(legend.position = "bottom", legend.justification = 'center', legend.title = element_blank()) +
-  guides(color = guide_legend(override.aes = list(size=5), nrow=ceiling(length(unique(simulated_seurat_obj@meta.data$))/4)))
+  labs(x = "UMAP-1", y = "", title = "ArmVar") +
+  scale_color_manual(values = c('cancer' = "#FE5F55", "normal" = "#577399")) +
+  theme(axis.text = element_blank(), axis.ticks = element_blank(), 
+      legend.position = "bottom", legend.direction="horizontal", legend.justification = 'center', legend.title = element_blank()) 
 
 umap3 <- Seurat::DimPlot(simulated_seurat_obj, reduction = "umap", group.by = 'tumor_sample_origin') +
-  theme(axis.text = element_blank(), axis.ticks = element_blank(), panel.border = element_rect(color = "black", fill = NA, linewidth = 0.8)) +
-  #scale_color_manual(values = tumor_sample_colors) +
-  labs(x = "UMAP-1", y = "", color = "", title="Tumor tissues of origin of the induced \n copy-number profiles") +
+  labs(x = "UMAP-1", y = "", color = "", title="Tumor sample origins of the CNAs \n used to simulate tumor cells") +
   theme(legend.position = "bottom", legend.justification = 'center', legend.title = element_blank()) +
+  scale_color_manual(values = colors$`Tumor sample origin`) +
   guides(color = guide_legend(override.aes = list(size=5), nrow=ceiling(length(unique(simulated_seurat_obj@meta.data$tumor_sample_origin))/4)))
 
 umap4 <- Seurat::DimPlot(simulated_seurat_obj, reduction = "umap", group.by = 'group_origin') +
-  theme(axis.text = element_blank(), axis.ticks = element_blank(), panel.border = element_rect(color = "black", fill = NA, linewidth = 0.8)) +
-  labs(x = "UMAP-1", y = "", color = "", title="Healthy tissues of origin of the \n simulated tumor cells") +
+  labs(x = "UMAP-1", y = "", color = "", title="Healthy sample origins od the simulated tumor cells") +
   theme(legend.position = "bottom", legend.justification = 'center', legend.title = element_blank())+
   scale_color_manual(values = colors$`Group origin`) +
   guides(color = guide_legend(override.aes = list(size=5), nrow=ceiling(length(colors$`Group origin`)/4)))
 
-print(plot_grid(umap1, umap2, umap3, umap4, nrow=1, align='h', rel_widths = c(1, 1, 1, 1)))
+plot_grid(umap1, umap2, umap3, umap4, nrow=1, align='h', rel_widths = c(1, 1, 1, 1))
 ```
