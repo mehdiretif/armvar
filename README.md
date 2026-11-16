@@ -61,4 +61,4 @@ As explained previously, the simulated results in the Seurat object returned by 
 
 <img src = "./images/fig3.png">
 
-For more explanation, a more complete tutorial can be found here: [How_to_use_armvar.Rmd](./vignettes/How_to_use_armvar.Rmd).
+For more explanation, a more complete tutorial can be found here: [How_to_use_armvar.pdf](./vignettes/How_to_use_armvar.pdf).
